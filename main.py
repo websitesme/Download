@@ -24,6 +24,7 @@ from urllib.parse import urlparse
 
 import httpx
 from bs4 import BeautifulSoup
+from dotenv import load_dotenv
 from telegram import Update
 from telegram.constants import ChatAction
 from telegram.ext import (
@@ -34,16 +35,20 @@ from telegram.ext import (
     filters,
 )
 
+# Load environment variables from a .env file if present
+load_dotenv()
+
 # ---------------------------------------------------------------------------
 # Configuration & Logging
 # ---------------------------------------------------------------------------
 
 # Replace with your actual Telegram Bot Token from @BotFather, or set the
-# TELEGRAM_BOT_TOKEN environment variable.
+# TELEGRAM_BOT_TOKEN environment variable in your .env file.
 BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "YOUR_TELEGRAM_BOT_TOKEN_HERE")
 
 # Telegram Bot API standard upload limit is 50 MB for bots.
-MAX_FILE_SIZE_BYTES = 48 * 1024 * 1024  # 48 MB safety margin
+MAX_FILE_SIZE_MB = int(os.getenv("MAX_FILE_SIZE_MB", "48"))
+MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
 
 # Regex pattern to detect Suno song or share links
 SUNO_URL_PATTERN = re.compile(
@@ -51,9 +56,10 @@ SUNO_URL_PATTERN = re.compile(
 )
 
 # Configure structured logging
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO,
+    level=getattr(logging, LOG_LEVEL, logging.INFO),
 )
 logger = logging.getLogger(__name__)
 
